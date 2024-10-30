@@ -1,4 +1,1 @@
-int testme(void)
-{
-	return 42;
-}
+int testme(void) { return 42; }
