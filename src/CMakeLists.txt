@@ -1,7 +1,13 @@
-add_executable(dbus-cli main.c test.c)
+set(SOURCE_FILES
+  main.c
+  terminal.c
+  test.c
+)
+
+add_executable(dbus-cli ${SOURCE_FILES})
 target_link_libraries(
   dbus-cli PRIVATE project_options project_warnings
-  )
+)
 
 target_include_directories(dbus-cli PRIVATE ${CMAKE_SOURCE_DIR}/include)
 
