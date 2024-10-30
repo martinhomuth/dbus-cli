@@ -1,6 +1,6 @@
 #ifndef _TERMINAL_H
 #define _TERMINAL_H
 
-void prompt(void);
+void input_loop(void);
 
 #endif
