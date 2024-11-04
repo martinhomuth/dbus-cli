@@ -117,6 +117,8 @@ void input_loop()
 	disable_cursor();
 
 	char input[INPUT_SIZE];
+	char command[INPUT_SIZE];
+	char *input_ptr = input;
 	static int prompt_type = 0;
 	bool quit = false;
 
@@ -129,37 +131,51 @@ void input_loop()
 		TERMINAL_GOTO_ROW_COL(w.ws_row - 5, 1);
 		printf("rows: %u, cols: %u\n", w.ws_row, w.ws_col);
 
+		TERMINAL_GOTO_ROW_COL(w.ws_row - 8, 1);
+		printf("command: %s\n", command);
+		memset(command, 0, sizeof(command));
+
 		TERMINAL_GOTO_ROW_COL(w.ws_row - 1, 1);
 		printf("%s", _get_current_prompt(prompt_type));
+
 		(void)fflush(stdout);
 
-		if (prompt_type == COMMAND_MODE) {
-			char c = '\0';
-			read(STDIN_FILENO, &c, 1);
+		char c = '\0';
+		if (read(STDIN_FILENO, &c, 1) == -1)
+			die("read");
+
+		switch (prompt_type) {
+		case COMMAND_MODE:
 			if (c == 'q')
 				quit = true;
-			else if (c == 'i')
+			if (c == 'i') {
 				prompt_type = INPUT_MODE;
-		} else if (prompt_type == INPUT_MODE) {
-			/* TODO: if the terminal gets resized during fgets, the
-               input is lost, maybe we want to try to store it in the
-               meantime?  Would be done by not disabling raw mode but
-               storing and printing every character entered */
-			disable_raw_mode();
-			enable_cursor();
-			fgets(input, INPUT_SIZE, stdin);
-		} else {
-			printf("Unknown prompt type\n");
-			quit = true;
+				enable_cursor();
+				disable_raw_mode();
+			}
+			break;
+		case INPUT_MODE:
+			if (c == '\n') {
+				*input_ptr++ = '\0'; // TODO: add check to avoid
+					// buffer overrun
+				memcpy(command, input,
+				       (size_t)(input_ptr - input));
+				memset(input, 0, sizeof(input));
+				input_ptr = input;
+			} else {
+				*input_ptr++ = c;
+			}
+			break;
+		default:
+			die("ERROR: unknown prompt");
 		}
 
-		if (strncmp(input, "command", 6) == 0) {
+		if (strncmp(command, "command", 7) == 0) {
 			prompt_type = COMMAND_MODE;
 			enable_raw_mode();
 			disable_cursor();
 		}
 
-		memset(input, 0, sizeof(input));
 		usleep(100);
 	}
 
