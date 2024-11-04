@@ -2,6 +2,7 @@ set(SOURCE_FILES
   main.c
   terminal.c
   test.c
+  util.c
 )
 
 add_executable(dbus-cli ${SOURCE_FILES})

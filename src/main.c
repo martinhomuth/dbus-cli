@@ -6,13 +6,16 @@
 
 #include "terminal.h"
 
-void welcome_message() { printf("welcome to the fancy dbus interactor\n"); }
+void welcome_message()
+{
+	printf("welcome to the fancy dbus interactor\n");
+}
 
-int main() {
+int main()
+{
+	welcome_message();
 
-    welcome_message();
+	input_loop();
 
-    input_loop();
-
-    return 0;
+	return 0;
 }
